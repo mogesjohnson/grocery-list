@@ -27,6 +27,11 @@
         <button type="submit" class="btn primary" aria-label="Add item">Add</button>
       </form>
 
+      <section id="suggestions" class="suggestions" hidden>
+        <h2>Due again</h2>
+        <ul id="suggestion-list"></ul>
+      </section>
+
       <div id="list"></div>
       <p id="list-empty" class="empty" hidden>Your list is empty. Add something above.</p>
       <p class="hint">Tap the circle or swipe right to mark bought. Long-press or tap × to delete.</p>
@@ -42,5 +47,6 @@
 
   <script src="app.js"></script>
   <script src="history.js"></script>
+  <script src="suggest.js"></script>
 </body>
 </html>
