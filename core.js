@@ -102,11 +102,16 @@
       history.push(h);
     }
     const names = new Set(current.items.map((it) => norm(it.name)));
+    const itemIds = new Set(current.items.map((it) => it.id));
     const items = [...current.items];
     for (const it of incoming.items) {
       if (names.has(norm(it.name))) continue;
       names.add(norm(it.name));
-      items.push(it);
+      // Rows act on items by id, so an id already in use gets a fresh one.
+      let { id } = it;
+      while (itemIds.has(id)) id = uid();
+      itemIds.add(id);
+      items.push(id === it.id ? it : { ...it, id });
     }
     return { version: SCHEMA_VERSION, items, history };
   }
