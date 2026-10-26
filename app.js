@@ -237,7 +237,7 @@ function init() {
   $('#add-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const input = $('#add-name');
-    if (App.addItem(input.value, sel.value)) input.value = '';
+    if (App.addItem(input.value, sel.value)) { input.value = ''; sel.value = ''; }
     input.focus();
   });
   document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => showTab(t.dataset.tab)));
