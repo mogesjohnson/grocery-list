@@ -1,11 +1,12 @@
 'use strict';
 
 // Bump CACHE whenever a shell file changes so clients pick up the new version.
-const CACHE = 'grocery-list-v1';
+const CACHE = 'grocery-list-v2';
 const SHELL = [
   './',
   'index.html',
   'styles.css',
+  'core.js',
   'app.js',
   'history.js',
   'suggest.js',

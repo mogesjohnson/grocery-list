@@ -1,61 +1,16 @@
 'use strict';
 
-// Storage schema. Bump SCHEMA_VERSION and extend migrate() when the shape changes.
-const SCHEMA_VERSION = 1;
-const STORAGE_KEY = 'grocery-list';
-const CATEGORIES = ['Produce', 'Dairy', 'Meat', 'Pantry', 'Frozen', 'Household', 'Other'];
-const DAY_MS = 24 * 60 * 60 * 1000;
+const { SCHEMA_VERSION, STORAGE_KEY, CATEGORIES, DAY_MS, norm, uid, blankData, validateData } = window.GroceryCore;
 
 const $ = (sel) => document.querySelector(sel);
-const norm = (name) => String(name).trim().toLowerCase().replace(/\s+/g, ' ');
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-
-function blankData() {
-  return { version: SCHEMA_VERSION, items: [], history: [] };
-}
-
-// Validate and clean data from storage or an import. Throws on bad input.
-function validateData(raw) {
-  if (!raw || typeof raw !== 'object') throw new Error('Not a JSON object');
-  if (typeof raw.version !== 'number') throw new Error('Missing schema version');
-  if (raw.version > SCHEMA_VERSION) throw new Error('File is from a newer version of the app');
-  if (!Array.isArray(raw.items) || !Array.isArray(raw.history)) throw new Error('Missing items or history');
-  const cat = (c) => (CATEGORIES.includes(c) ? c : '');
-  const items = raw.items.map((it, i) => {
-    if (!it || typeof it.name !== 'string' || !it.name.trim()) throw new Error(`Item ${i + 1} has no name`);
-    return { id: String(it.id || uid()), name: it.name.trim(), category: cat(it.category), addedAt: Number(it.addedAt) || Date.now() };
-  });
-  const history = raw.history.map((h, i) => {
-    if (!h || typeof h.name !== 'string' || !h.name.trim()) throw new Error(`History entry ${i + 1} has no name`);
-    const t = Number(h.boughtAt);
-    if (!Number.isFinite(t) || t <= 0) throw new Error(`History entry ${i + 1} has a bad date`);
-    return { id: String(h.id || uid()), name: h.name.trim(), category: cat(h.category), boughtAt: t };
-  });
-  return { version: SCHEMA_VERSION, items, history };
-}
-
-function migrate(raw) {
-  // v1 is the first schema; future versions upgrade older data here, step by step.
-  return validateData(raw);
-}
-
-function loadData() {
-  try {
-    const text = localStorage.getItem(STORAGE_KEY);
-    return text ? migrate(JSON.parse(text)) : blankData();
-  } catch (err) {
-    console.warn('Could not read saved data, starting fresh', err);
-    return blankData();
-  }
-}
+const getStorage = () => window.localStorage;
+const loadData = () => window.GroceryCore.loadData(getStorage);
 
 const App = {
   data: loadData(),
   renderHooks: [],
   save() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
-    } catch (err) {
+    if (!window.GroceryCore.saveData(getStorage, this.data)) {
       toast('Could not save: storage is full or blocked');
     }
   },

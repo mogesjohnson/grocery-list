@@ -37,28 +37,12 @@
     App.toast('Exported a JSON backup');
   }
 
-  function mergeData(current, incoming) {
-    const histIds = new Set(current.history.map((h) => h.id));
-    const histKeys = new Set(current.history.map((h) => `${App.norm(h.name)}|${h.boughtAt}`));
-    const history = [...current.history];
-    for (const h of incoming.history) {
-      if (histIds.has(h.id) || histKeys.has(`${App.norm(h.name)}|${h.boughtAt}`)) continue;
-      history.push(h);
-    }
-    const names = new Set(current.items.map((it) => App.norm(it.name)));
-    const items = [...current.items];
-    for (const it of incoming.items) {
-      if (names.has(App.norm(it.name))) continue;
-      names.add(App.norm(it.name));
-      items.push(it);
-    }
-    return { version: App.SCHEMA_VERSION, items, history };
-  }
+  const { mergeData, parseImport } = window.GroceryCore;
 
   async function importFile(file) {
     let incoming;
     try {
-      incoming = App.validateData(JSON.parse(await file.text()));
+      incoming = parseImport(await file.text());
     } catch (err) {
       alert(`Import failed: ${err.message}`);
       return;
