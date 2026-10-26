@@ -14,12 +14,15 @@ no dependencies, no backend) served from GitHub Pages at https://mogesjohnson.gi
 Run these from the repo root. They are the only definition of "checks pass".
 
 - Syntax check: `for f in *.js; do node --check "$f"; done`
+- Unit tests (Node 20+, no install needed): `npm test`
 - Manifest is valid JSON: `node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest','utf8'))"`
 - Run locally: `python3 -m http.server 8000`, then open http://localhost:8000/
 
 ## Where things live
 
-- `index.html`, `styles.css`, `app.js`: the whole app shell.
+- `index.html`, `styles.css`, `app.js`, `history.js`, `suggest.js`, `data.js`: the app shell and UI.
+- `core.js`: pure logic (schema, storage, suggestions, import). No DOM; unit tested in `test/`.
+- `.github/workflows/ci.yml`: runs the checks below on pushes to `main` and on pull requests.
 - `manifest.webmanifest`, `sw.js`, `icons/`: PWA install and offline support.
 - `.github/pull_request_template.md`: the PR report format.
 
