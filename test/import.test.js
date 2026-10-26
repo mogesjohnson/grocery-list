@@ -174,3 +174,18 @@ test('merging a file with internal duplicates adds each entry once', () => {
   }));
   assert.equal(mergeData(current(), incoming).history.length, 2);
 });
+
+test('merge gives an incoming item a fresh id when current data already uses it', () => {
+  const incoming = parseImport(file({ items: [{ id: 'i1', name: 'Bread' }], history: [] }));
+  const out = mergeData(current(), incoming);
+  assert.deepEqual(out.items.map((i) => i.name), ['Milk', 'Bread']);
+  assert.equal(new Set(out.items.map((i) => i.id)).size, 2);
+  assert.equal(out.items[0].id, 'i1');
+});
+
+test('merge does not mutate the incoming data', () => {
+  const incoming = parseImport(file({ items: [{ id: 'i1', name: 'Bread' }], history: [] }));
+  const copy = structuredClone(incoming);
+  mergeData(current(), incoming);
+  assert.deepEqual(incoming, copy);
+});
