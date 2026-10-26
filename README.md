@@ -52,10 +52,15 @@ migrate older data on load.
 
 ```sh
 python3 -m http.server 8000      # then open http://localhost:8000/
+npm test                         # unit tests for core.js (node:test, no install)
 for f in *.js tools/*.mjs; do node --check "$f"; done
 node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest','utf8'))"
 node tools/make-icons.mjs        # regenerate PNG icons from the shapes in icons/icon.svg
 ```
+
+Logic with no DOM (schema, storage, suggestions, import validation) lives in `core.js`,
+which the page loads as a plain script and the tests `require()`. CI runs the checks above
+on every pull request.
 
 All paths are relative so the app works under `/grocery-list/` on GitHub Pages. Bump `CACHE`
 in `sw.js` when you change a cached file. See `AGENTS.md` for the commit and PR rules.
