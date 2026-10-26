@@ -21,7 +21,19 @@
     return { version: SCHEMA_VERSION, items: [], history: [] };
   }
 
+  // Give each entry a unique id: a missing or repeated id gets a fresh one.
+  function uniqueIds(entries) {
+    const seen = new Set();
+    for (const e of entries) {
+      while (!e.id || seen.has(e.id)) e.id = uid();
+      seen.add(e.id);
+    }
+    return entries;
+  }
+
   // Validate and clean data from storage or an import. Throws on bad input.
+  // Drops repeated list items (same normalized name) and repeated history
+  // entries (same normalized name and time), keeping the first.
   function validateData(raw) {
     if (!raw || typeof raw !== 'object') throw new Error('Not a JSON object');
     if (typeof raw.version !== 'number') throw new Error('Missing schema version');
@@ -30,15 +42,23 @@
     const cat = (c) => (CATEGORIES.includes(c) ? c : '');
     const items = raw.items.map((it, i) => {
       if (!it || typeof it.name !== 'string' || !it.name.trim()) throw new Error(`Item ${i + 1} has no name`);
-      return { id: String(it.id || uid()), name: it.name.trim(), category: cat(it.category), addedAt: Number(it.addedAt) || Date.now() };
+      return { id: it.id ? String(it.id) : '', name: it.name.trim(), category: cat(it.category), addedAt: Number(it.addedAt) || Date.now() };
     });
     const history = raw.history.map((h, i) => {
       if (!h || typeof h.name !== 'string' || !h.name.trim()) throw new Error(`History entry ${i + 1} has no name`);
       const t = Number(h.boughtAt);
       if (!Number.isFinite(t) || t <= 0) throw new Error(`History entry ${i + 1} has a bad date`);
-      return { id: String(h.id || uid()), name: h.name.trim(), category: cat(h.category), boughtAt: t };
+      return { id: h.id ? String(h.id) : '', name: h.name.trim(), category: cat(h.category), boughtAt: t };
     });
-    return { version: SCHEMA_VERSION, items, history };
+    const firstOf = (list, key) => {
+      const seen = new Set();
+      return list.filter((e) => !seen.has(key(e)) && seen.add(key(e)));
+    };
+    return {
+      version: SCHEMA_VERSION,
+      items: uniqueIds(firstOf(items, (it) => norm(it.name))),
+      history: uniqueIds(firstOf(history, (h) => `${norm(h.name)}|${h.boughtAt}`)),
+    };
   }
 
   function migrate(raw) {
