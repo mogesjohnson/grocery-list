@@ -18,8 +18,9 @@ no dependencies, no backend, no login. Your data stays in your browser.
   example, "milk, usually every 7 days, last bought 8 days ago" with a one-tap **+ Add**.
   Repeat purchases within 12 hours count as one trip.
 - **Data tab:** requests persistent storage (`navigator.storage.persist()`) and shows whether
-  the browser granted it; exports a JSON backup; imports a backup after validating it, then
-  asks whether to merge it into your data or replace everything.
+  the browser granted it; exports a JSON backup; imports a backup after validating it (repeated list items and
+  repeated purchases in the file are dropped), then asks whether to merge it into your data
+  or replace everything.
 - **Offline:** a service worker caches the app shell, so it opens with no connection.
 - Light and dark themes follow your system setting.
 
