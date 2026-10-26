@@ -14,6 +14,7 @@
     <nav class="tabs" role="tablist">
       <button role="tab" class="tab" data-tab="list" aria-selected="true">List</button>
       <button role="tab" class="tab" data-tab="history" aria-selected="false">History</button>
+      <button role="tab" class="tab" data-tab="data" aria-selected="false">Data</button>
     </nav>
   </header>
 
@@ -27,6 +28,11 @@
         <button type="submit" class="btn primary" aria-label="Add item">Add</button>
       </form>
 
+      <section id="suggestions" class="suggestions" hidden>
+        <h2>Due again</h2>
+        <ul id="suggestion-list"></ul>
+      </section>
+
       <div id="list"></div>
       <p id="list-empty" class="empty" hidden>Your list is empty. Add something above.</p>
       <p class="hint">Tap the circle or swipe right to mark bought. Long-press or tap × to delete.</p>
@@ -36,11 +42,29 @@
       <ul id="history" class="history"></ul>
       <p id="history-empty" class="empty" hidden>Nothing bought yet.</p>
     </section>
+    <section id="tab-data" class="panel" hidden>
+      <h2>Storage</h2>
+      <div class="card">
+        <p id="persist-status" class="status">Checking persistent storage…</p>
+        <button id="persist-btn" type="button" class="btn small">Request persistent storage</button>
+      </div>
+      <h2>Backup</h2>
+      <div class="card">
+        <p id="data-stats" class="status"></p>
+        <div class="row">
+          <button id="export-btn" type="button" class="btn">Export JSON</button>
+          <button id="import-btn" type="button" class="btn">Import JSON</button>
+          <input id="import-file" type="file" accept="application/json,.json" hidden>
+        </div>
+      </div>
+    </section>
   </main>
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
   <script src="app.js"></script>
   <script src="history.js"></script>
+  <script src="suggest.js"></script>
+  <script src="data.js"></script>
 </body>
 </html>
