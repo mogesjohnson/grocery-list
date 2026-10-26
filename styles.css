@@ -134,3 +134,10 @@ main { max-width: 640px; margin: 0 auto; padding: 12px 16px 40px; }
 .suggestions li span { color: var(--muted); }
 .suggestions li strong { color: var(--text); font-weight: 600; }
 .suggestions .btn { flex: none; }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+.card .row { display: flex; gap: 8px; flex-wrap: wrap; }
+.card .row .btn { flex: 1; }
+.status { margin: 0 0 12px; color: var(--muted); line-height: 1.4; }
+.status[data-state="ok"] { color: var(--accent); }
+.status[data-state="warn"] { color: var(--danger); }
