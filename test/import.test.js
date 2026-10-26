@@ -139,3 +139,38 @@ test('merge does not mutate current data', () => {
   mergeData(cur, parseImport(file()));
   assert.deepEqual(cur, copy);
 });
+
+test('duplicate list items in a file are dropped, keeping the first', () => {
+  const data = parseImport(file({
+    items: [{ id: 'a', name: 'Milk' }, { id: 'b', name: ' MILK ' }, { id: 'c', name: 'Bread' }],
+    history: [],
+  }));
+  assert.deepEqual(data.items.map((i) => `${i.id}:${i.name}`), ['a:Milk', 'c:Bread']);
+});
+
+test('repeated ids in a file get fresh unique ids', () => {
+  const data = parseImport(file({
+    items: [{ id: 'a', name: 'Milk' }, { id: 'a', name: 'Bread' }],
+    history: [{ id: 'h', name: 'Jam', boughtAt: T }, { id: 'h', name: 'Jam', boughtAt: T + 7 * 864e5 }],
+  }));
+  assert.equal(data.items[0].id, 'a');
+  assert.equal(new Set(data.items.map((i) => i.id)).size, 2);
+  assert.equal(data.history.length, 2);
+  assert.equal(new Set(data.history.map((h) => h.id)).size, 2);
+});
+
+test('repeated history entries (same name and time) in a file are dropped', () => {
+  const data = parseImport(file({
+    items: [],
+    history: [{ id: 'h1', name: 'Jam', boughtAt: T }, { id: 'h2', name: ' jam', boughtAt: T }],
+  }));
+  assert.deepEqual(data.history.map((h) => h.id), ['h1']);
+});
+
+test('merging a file with internal duplicates adds each entry once', () => {
+  const incoming = parseImport(file({
+    items: [],
+    history: [{ id: 'h9', name: 'Tea', boughtAt: T }, { id: 'h9', name: 'Tea', boughtAt: T }],
+  }));
+  assert.equal(mergeData(current(), incoming).history.length, 2);
+});
